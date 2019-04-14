@@ -1,0 +1,58 @@
+---
+- name: Creating conda group
+  group:
+    name: conda
+
+- name: Create conda directory
+  file:
+    path={{item}}
+    state=directory
+    group=conda
+    mode=0775
+  with_items:
+    - "{{conda_dir}}"
+
+- name: Download Miniconda
+  get_url:
+    url=https://repo.continuum.io/miniconda/Miniconda3-4.5.12-Linux-x86_64.sh
+    dest=/tmp/Miniconda3-4.5.12-Linux-x86_64.sh
+    mode=0775
+
+- name: Install Miniconda
+  shell: |
+    bash /tmp/Miniconda3-4.5.12-Linux-x86_64.sh -f -b -p {{conda_dir}}
+    chgrp -R conda {{conda_dir}}
+
+- name: Configure Miniconda
+  environment:
+    PATH: "{{conda_dir}}/bin:{{ansible_env.PATH}}"
+  shell: |
+    conda config --system --prepend channels conda-forge
+    conda config --system --set auto_update_conda false
+
+- name: Install jupyterhub
+  environment:
+    PATH: "{{conda_dir}}/bin:{{ansible_env.PATH}}"
+  shell: |
+    conda install --quiet --yes 'jupyterhub=0.9.4' dockerspawner
+    conda update --all --quiet --yes
+
+- name: Install pip packages
+  environment:
+    PATH: "{{conda_dir}}/bin:{{ansible_env.PATH}}"
+  shell: |
+    pip install oauthenticator jupyter_client
+
+- name: Chown conda dir recursively to conda group
+  file:
+    dest={{conda_dir}}
+    owner=root
+    group=conda
+    recurse=yes
+
+- name: add {{conda_dir}}/bin to path
+  lineinfile:
+    dest: /etc/profile.d/conda.sh
+    state: present
+    line: 'PATH={{conda_dir}}/bin:$PATH'
+    create: yes

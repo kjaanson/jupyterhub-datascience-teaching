@@ -1,0 +1,58 @@
+---
+- name: Pull jupyterhub image
+  shell: |
+    docker pull {{jupyterhub_image}}
+
+- name: Create jupyterhub group
+  group:
+    name: jupyterhub
+
+- name: Create jupyterhub user
+  user:
+    name: jupyterhub
+    group: jupyterhub
+
+- name: Make jupyterhub etc dir
+  file:
+    path=/etc/jupyterhub
+    state=directory
+    mode=0755
+
+- name: Make jupyterhub proccess dir
+  file:
+    path={{item}}
+    state=directory
+    group=jupyterhub
+    owner=jupyterhub
+    mode=0775
+  with_items:
+    - "/opt/jupyterhub"
+    - "/opt/jupyterhub/ssl"
+
+- name: Generate temporary key and cert for jupyterhub
+  shell: openssl req -x509 -nodes -days 365 -newkey rsa:1024 -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com" -keyout {{ssl_key}} -out {{ssl_cert}}
+  args:
+    creates: "{{ssl_key}}"
+
+- name: Copy jupyterhub conf
+  copy:
+    src: jupyterhub_config.py
+    dest: /etc/jupyterhub/jupyterhub_config.py
+    mode: 0644
+    owner: jupyterhub
+    group: jupyterhub
+  register: jupyterhub_conf
+
+- name: Copy jupyterhub service
+  copy:
+    src: jupyterhub.service
+    dest: /etc/systemd/system/jupyterhub.service
+  register: systemd_unit_jupyterhub
+
+- name: Systemd reload
+  command: systemctl daemon-reload
+  when: systemd_unit_jupyterhub.changed
+
+- name: Restart Jupyterhub
+  command: systemctl restart jupyterhub.service
+  when: systemd_unit_jupyterhub.changed or jupyterhub_conf.changed

@@ -1,0 +1,38 @@
+---
+- name: Purge system docker
+  shell: |
+    apt-get purge docker lxc-docker docker-engine docker.io
+  ignore_errors: yes
+
+- name: Docker dependencies
+  apt:
+    name: "{{packages}}"
+  vars:
+    packages:
+      - apt-transport-https 
+      - ca-certificates 
+      - curl
+      - gnupg2 
+      - software-properties-common
+
+- name: Docker registry key
+  apt_key: 
+    url: https://download.docker.com/linux/debian/gpg
+    state: present
+
+- name: Docker repository setup
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/debian stretch stable"
+    state: present
+    filename: docker
+    update_cache: yes
+
+- name: Install docker
+  apt:
+    name: docker-ce
+    update_cache: yes
+
+- name: Adding user kaur to docker group  
+  user: name=kaur
+        group=docker
+        append=yes

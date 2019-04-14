@@ -1,0 +1,6 @@
+---
+- hosts: jhtest
+  roles:
+    - docker
+    - conda
+    - jupyterhub
