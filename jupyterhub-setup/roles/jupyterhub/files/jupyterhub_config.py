@@ -21,26 +21,11 @@ c.JupyterHub.authenticator_class = 'dummyauthenticator.DummyAuthenticator'
 
 c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
 
-c.DockerSpawner.image = 'jupyter/datascience-notebook:4cdbc9cdb7d1'
+c.DockerSpawner.image = 'bioinf-jupyterhub-singleuser'
 
 # This should limit the env variables from jupyterhub to jupter notebook. 
 # Not sure if it works when notebook is started by sudospawner.
-c.Spawner.env_keep = ['PATH',
-                      'PYTHONPATH',
-                      'CONDA_ROOT',
-                      'CONDA_DEFAULT_ENV',
-                      'VIRTUAL_ENV',
-                      'LANG',
-                      'LC_ALL',
-                      'SPARK_HOME',
-                      'SPARK_LOG_DIR',
-                      'SPARK_CONF_DIR',
-                      'SPARK_WORKER_DIR',
-                      'SPARK_EXECUTOR_CORES',
-                      'SPARK_EXECUTOR_MEMORY',
-                      'SPARK_DRIVER_MEMORY',
-                      'PYSPARK_PYTHON',
-                      'PYSPARK_DRIVER_PYTHON'
-                      ]
+#c.Spawner.env_keep = ['PATH',
+#                      'PYTHONPATH']
 
-c.Authenticator.admin_users = {'kajaan','juliiv'}
+c.Authenticator.admin_users = {'kaur'}

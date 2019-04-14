@@ -36,3 +36,6 @@
   user: name=kaur
         group=docker
         append=yes
+
+- pip:
+    name: docker

@@ -1,8 +1,4 @@
 ---
-- name: Pull jupyterhub image
-  shell: |
-    docker pull {{jupyterhub_image}}
-
 - name: Create jupyterhub group
   group:
     name: jupyterhub
@@ -29,6 +25,17 @@
     - "/opt/jupyterhub"
     - "/opt/jupyterhub/ssl"
 
+- name: Copy jupyter notebook image Dockerfile
+  copy:
+    src: Dockerfile
+    dest: /opt/jupyterhub/Dockerfile
+  register: jupyter_notebook_img
+
+- name: Build jupyter notebook imagefile
+  shell: |
+    cd /opt/jupyterhub/ && docker build -t {{jupyterhub_image}} .
+#  when: jupyter_notebook_img.changed
+
 - name: Generate temporary key and cert for jupyterhub
   shell: openssl req -x509 -nodes -days 365 -newkey rsa:1024 -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com" -keyout {{ssl_key}} -out {{ssl_cert}}
   args:
@@ -42,6 +49,11 @@
     owner: jupyterhub
     group: jupyterhub
   register: jupyterhub_conf
+
+- name: Adding jupyterhub user to docker group  
+  user: name=jupyterhub
+        group=docker
+        append=yes
 
 - name: Copy jupyterhub service
   copy:
