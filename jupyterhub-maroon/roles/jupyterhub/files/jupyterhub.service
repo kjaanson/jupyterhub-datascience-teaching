@@ -1,0 +1,13 @@
+[Unit]
+Description=Jupyterhub
+After=syslog.target network.target
+
+[Service]
+User=root
+WorkingDirectory=/opt/jupyterhub
+Environment="PATH=/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/opt/conda/bin"
+#EnvironmentFile=/etc/default/jupyterhub
+ExecStart=/bin/bash -ce "/opt/conda/bin/jupyterhub -f /etc/jupyterhub/jupyterhub_config.py >> /opt/jupyterhub/jupyterhub.log 2>&1"
+
+[Install]
+WantedBy=multi-user.target

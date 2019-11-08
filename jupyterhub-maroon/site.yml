@@ -1,0 +1,5 @@
+---
+- hosts: maroon
+  roles:
+    - conda
+    - jupyterhub

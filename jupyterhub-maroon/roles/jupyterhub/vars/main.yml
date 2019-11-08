@@ -1,0 +1,4 @@
+---
+ssl_cert: /opt/jupyterhub/ssl/cert.pem
+ssl_key: /opt/jupyterhub/ssl/key.pem
+jupyterhub_dir: /opt/jupyterhub
